@@ -1,0 +1,17 @@
+{
+  "name": "N1 FEM Mercato - Andalucía",
+  "short_name": "N1 FEM Mercato",
+  "description": "Altas, bajas y renovaciones de la Primera Nacional Femenina de Andalucía.",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f2f4f7",
+  "theme_color": "#01ebce",
+  "icons": [
+    { "src": "./img/icono-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "./img/icono-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "./img/icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
