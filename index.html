@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Fuera de buscadores, archivadores y rastreadores de IA. Es una PETICION,
+     no una barrera: los buscadores grandes la respetan y un raspador que no
+     quiera, no. Lo unico que impide el acceso de verdad es pedir credenciales
+     delante del sitio. Va acompañado de robots.txt, que dice lo mismo para
+     quien mire ahi primero. -->
+<meta name="robots" content="noindex, nofollow, noarchive, noimageindex">
+<meta name="googlebot" content="noindex, nofollow">
+<meta name="GPTBot" content="noindex, nofollow">
+<meta name="CCBot" content="noindex, nofollow">
+<title>N1 FEM Mercato - Andalucía · 26/27</title>
+<!-- El icono de la pestaña NO es el escudo de la cabecera, y la diferencia no es
+     estetica: este lleva CAJA de fondo. El escudo es el trazo cian mas un "N1"
+     negro sobre transparente, y en una pestaña oscura ese negro desaparece y
+     solo queda el trazo flotando. Sobre su caja se lee en las dos.
+     SVG a proposito, que escala solo a cualquier densidad de pantalla. -->
+<link rel="icon" type="image/svg+xml" href="./img/favicon.svg">
+<!-- Instalable. El manifiesto y el service worker viven en la RAIZ del sitio
+     publicado (ver LISTA_BLANCA_BASE): el ambito de un service worker es su
+     propio directorio, y desde /web/ no podria controlar la pagina de inicio.
+     `theme_color` tiñe la barra del sistema al abrirla instalada, asi que va
+     igual que el acento de la liga. -->
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#01ebce">
+<meta name="apple-mobile-web-app-title" content="N1 FEM Mercato">
+<!-- Las tres hojas, y en este orden: tokens (identicos en los tres repos), la
+     base compartida que se copia del motor, y al final lo propio de esta liga,
+     que es lo unico que puede pisar a las anteriores. -->
+<link rel="stylesheet" href="./estilos/tokens.css">
+<link rel="stylesheet" href="./estilos/base.css">
+<link rel="stylesheet" href="./estilos/liga.css">
+</head>
+<body>
+
+<div class="barra-sup">
+  <!-- `cabecera` no es decorativa: declara el contenedor de consulta sobre el
+       que se recoloca el lema. Sin ella la container query de base.css no
+       dispara nunca y la cabecera se queda en su version estrecha. -->
+  <div class="envoltura cabecera">
+    <div class="marca">
+      <!-- Escudo DELANTE del nombre, como en LF2: el escudo dice de que
+           competicion es y el texto dice que es esto, y hacen falta los dos.
+           Antes era un logo apaisado que ocupaba el h1 entero y dejaba el
+           encabezado de la pagina dentro de un `alt`.
+           `width` y `height` declarados para que reserve su hueco antes de
+           cargar y la cabecera no pegue un salto. El `alt` dice el nombre
+           COMPLETO de la competicion, que es lo que el "N1" de al lado no
+           cuenta: quien lee la pagina con un lector de pantalla se entera de
+           que liga es sin tener que deducirlo de una abreviatura.
+           El comentario partido pega el <img> al <span> sin que el blanco entre
+           los dos cuente como contenido. -->
+      <h1 class="marca-nombre"><img class="marca-escudo" src="./img/N1.svg"
+           alt="Primera Nacional Femenina Andalucía" width="36" height="36" decoding="async"><!--
+        -->
+        <span class="marca-texto">N1 FEM <span>Mercato - Andalucía</span></span></h1>
+      <div class="marca-dcha">
+        <!-- El nombre de la competicion va en su propio span porque en movil se
+             esconde: ya esta en la marca y en el titulo de la pestaña, y ahi lo
+             que hace falta es que la temporada quepa en la misma linea. -->
+        <p class="lema"><span class="lema-competicion">Primera Nacional Femenina</span><br><span id="sub">Cargando…</span></p>
+        <button type="button" id="verFiltros" class="plegar" aria-expanded="true" aria-controls="cajaFiltros" title="Mostrar u ocultar los filtros">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+      </div>
+    </div>
+    <!-- Nace PLEGADO: si no, el primer pintado sale con la barra abierta y el JS la
+         cierra un instante despues. Ese parpadeo se ve en cada carga en movil.
+         El estado real lo decide `comoArranca()` en cuanto corre; esto solo evita
+         enseñar por defecto el que casi nunca toca. -->
+    <div class="caja-filtros plegado" id="cajaFiltros">
+    <div class="filtros">
+      <!-- Dos formas de leer lo mismo. Las tarjetas contestan "qué ha hecho
+           este club"; la cronología, "qué ha pasado esta semana". El motor solo
+           pinta la segunda si existe este <select>: una liga que no lo declare
+           se queda con las tarjetas y no hay que tocar su HTML. -->
+      <!-- La que arranca es la que lleve `selected`, y lo decide CADA liga en su
+           HTML: el motor solo respeta lo que encuentre puesto. Aqui manda la
+           cronología porque la pregunta con la que entra casi todo el mundo es
+           "¿qué ha pasado?", no "¿qué ha hecho este club?". -->
+      <label class="campo"><span>Vista</span><select id="fVista">
+        <!-- La PRIMERA manda: un <select> sin nada marcado cae a su primera
+             opcion, y de ahi lee el motor cual es la vista por defecto. Antes
+             se decia con un `selected` en la segunda; ponerla la primera dice lo
+             mismo sin una marca que explicar, y ademas deja el desplegable en
+             orden de uso: lo que se mira siempre, arriba. -->
+        <option value="cronologia">Cronología</option>
+        <option value="equipos">Equipos</option>
+      </select></label>
+      <label class="campo"><span>Temporada</span><select id="fTemporada"></select></label>
+      <!-- Va CON el de Vista: los dos son la vista cronologica, y declarar uno
+           sin el otro deja la lista entera sin forma de acotarla. La ventana
+           cuenta hacia atras desde hoy e incluye hoy, asi que 1 es "lo de hoy" y
+           7 "esta semana". Vacio —o cero— es todo, y lo dice el placeholder: un
+           0 al lado de "ULTIMOS DIAS" se lee como "cero dias".
+           El 30 de tope no es un capricho: mas atras la pregunta ya no es "¿hay
+           algo nuevo?" sino "¿que ha pasado esta temporada?", y para eso estan
+           las tarjetas. El JS lee el `max` de aqui, asi que cambiarlo basta.
+           DETRAS de Temporada, no delante: asi los dos campos que sobreviven a
+           la cronologia no se intercambian el sitio al cambiar de vista. -->
+      <label class="campo"><span>Últimos días</span><input id="fDias" type="number"
+             min="0" max="30" step="1" inputmode="numeric" placeholder="todo"
+             title="Cuántos días atrás mirar, contando hoy. Vacío o 0 son todos los anuncios de la temporada."></label>
+      <!-- La liga son DOS grupos de 14, y el grupo es el eje por el que se lee:
+           se pinta una rejilla por grupo, con su titulo fuera de las tarjetas.
+           Las opciones las rellena el JS con los grupos que traiga el JSON, no
+           van escritas aqui: una liga de un solo grupo no tiene que tocar su
+           HTML, y un grupo que desaparece de una temporada deja de ofrecerse. -->
+      <label class="campo"><span>Grupo</span><select id="fGrupo"></select></label>
+      <!-- La provincia es un filtro PROPIO de esta liga (es regional); lo declara
+           web/mercato.js y el motor lo monta solo. La LF2 es estatal y no lo
+           tiene: alli este <select> sencillamente no existe. -->
+      <label class="campo"><span>Provincia</span><select id="fProvincia"></select></label>
+      <!-- Equipo NO es un <select>: ver el bloque .combo en los estilos. -->
+      <div class="campo combo"><span id="fEquipoEtiqueta">Equipo</span>
+        <button type="button" id="fEquipoBtn" aria-haspopup="listbox" aria-expanded="false"
+                aria-labelledby="fEquipoEtiqueta fEquipoBtn">Todos</button>
+        <ul id="fEquipoLista" role="listbox" aria-labelledby="fEquipoEtiqueta" hidden></ul>
+      </div>
+      <!-- Los dos interruptores filtran cosas distintas y por eso van juntos: el
+           primero decide QUE EQUIPOS se ven, el segundo que FILAS se ven dentro
+           de sus plantillas. Antes el segundo era uno por tarjeta, y con media
+           liga anunciando habia que ir marcandolo equipo por equipo. -->
+      <label class="interruptor"><input type="checkbox" id="fMovimientos"> Solo con movimientos</label>
+      <label class="interruptor"><input type="checkbox" id="fSoloAnuncios"> Solo jugadoras con anuncio</label>
+      <span class="cuenta" id="cuenta"></span>
+    </div>
+    </div>
+  </div>
+</div>
+
+<!-- Igual que arriba: `contenido` es el contenedor de consulta del cuerpo. De
+     el cuelgan los totales, la rejilla de equipos y el ancho del nombre en las
+     tablas. Quitarlo deja las tres cosas en su version de movil para siempre. -->
+<div class="envoltura contenido">
+  <!-- Los totales y los dos avisos. Es un <dialog> a proposito: en ancho se ve
+       como un bloque mas de la pagina y en movil, donde ocupaban la pantalla
+       entera y al cargar no se veia ni un equipo, se abre como modal desde la
+       linea de aqui debajo. Quien decide cual de las dos cosas es, es el CSS. -->
+  <!-- Lleva la clase `aviso` a proposito: es la misma barra que el aviso legal
+       que hay dentro del panel, y asi las dos se leen igual sin repetir ni una
+       declaracion. El icono es el mismo ⓘ que el de cada tarjeta de equipo. -->
+  <button type="button" class="aviso panel-info-btn" id="verInfo" aria-haspopup="dialog" aria-controls="cajaInfo">
+    <span>Información</span>
+    <svg viewBox="0 0 24 24" aria-hidden="true" data-trazo stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v5.5"/><circle cx="12" cy="7.6" r="1.1" fill="currentColor" stroke="none"/></svg>
+  </button>
+  <dialog class="caja-info" id="cajaInfo">
+  <div class="totales" id="totales"></div>
+  <!-- Hasta donde se ha mirado DE VERDAD. Una tabla vacia porque no hay fichajes
+       y una vacia porque nadie ha barrido esa temporada se ven igual, y no son lo
+       mismo: si no se dice, el silencio se lee como dato. -->
+  <p class="barrido" id="barrido"></p>
+  <div class="aviso" id="avisoFuentes">
+    <p class="texto"><strong>Información no oficial.</strong> Recopilada de las publicaciones
+    públicas de los propios clubes implicados y de los datos públicos de la
+    Federación Andaluza de Baloncesto. Los movimientos se publican tal y como
+    los anuncian los clubes, antes de que existan las licencias federativas, y
+    pueden cambiar o no llegar a concretarse.</p>
+    <!-- Al CANAL, no al bot. El bot es administrador del canal y publica ahi
+         cada movimiento nuevo; quien entra por este enlace se suscribe al canal,
+         no abre una conversacion. La entrada la aprueba el administrador. -->
+    <a class="bot" href="https://t.me/+WjZkq07kTsJiMmVk" target="_blank" rel="noopener"
+       title="Canal de Telegram con cada movimiento nuevo. La entrada la aprueba el administrador.">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.9 4.3 18.7 19c-.2 1-.9 1.3-1.7.8l-4.7-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.8 8.8-8c.4-.3-.1-.5-.6-.2L6.6 12.8 2 11.3c-1-.3-1-1 .2-1.5l18.4-7.1c.8-.3 1.5.2 1.3 1.6z"/></svg>Avisos en Telegram</a>
+  </div>
+  </dialog>
+  <div id="equipos"></div>
+</div>
+
+<script type="module" src="./mercato.js"></script>
+</body>
+</html>

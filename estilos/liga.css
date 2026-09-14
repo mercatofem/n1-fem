@@ -1,0 +1,71 @@
+/* Lo propio de N1 FEM Mercato.
+   =================================================================
+   Todo lo comun esta en estilos/base.css, que es una copia generada de
+   mercato-motor/web/base.css. Aqui solo va lo que de verdad cambia cuando la
+   liga es la Primera Nacional Femenina de Andalucia, y esta hoja se carga
+   DESPUES de la base a proposito: lo de aqui manda.
+
+   Esta hoja deberia ser corta. Si crece, casi seguro que algo que parecia
+   propio no lo era.
+
+   Hasta que el JS convergio habia aqui un tercer apartado, TEMPORAL, con las
+   rejillas y los niveles de encabezado: no eran diferencias de liga sino deuda
+   del JS —esta pagina pintaba una sola rejilla con los 28 y LF2 una por grupo—
+   y se fueron enteras a la base sin tocar una declaracion, solo renombrando
+   selectores. Lo mismo paso con el retrato y con la fila de cuentas del club.
+   Si vuelve a aparecer un bloque que hay que explicar diciendo "es que la otra
+   web todavia...", no es propio: es deuda, y se marca como tal.
+
+   Mismas dos reglas de siempre: tokens (--sp-Npx, --t-*) y nunca px a mano
+   salvo medidas intrinsecas; y container queries, nunca el ancho de ventana. */
+
+
+/* =================================================================
+   1. Propio de N1 FEM Mercato
+   ================================================================= */
+
+  /* El acento de la casa. Va AQUI y no en tokens.css a proposito: esa hoja es
+     la paleta copiada de AND Scout —el verde #007a33 es su marca, no la de
+     N1— y un dia se volvera a sincronizar. Puesto ahi, ese dia el color de la
+     liga se perderia sin que nadie lo notara.
+
+     Se redefine tambien el tema oscuro, que hoy no se usa —la pagina nunca
+     pone data-theme— pero conserva el verde: dejarlo seria plantar un color
+     viejo esperando al dia que alguien encienda el tema. */
+  :root,
+  :root[data-theme="dark"] {
+    --accent: #01ebce;
+    /* Y su version legible, para cuando el acento pinta TEXTO. El #01ebce da
+       1,52:1 sobre blanco: los numeros de las baldosas y los enlaces quedaban
+       ilegibles. Este es el mismo tono al 55% sobre negro, 4,8:1, que es AA
+       para texto normal. Se mezcla en CSS y no va a fuego para que cambiar el
+       acento arrastre tambien al texto. */
+    --accent-texto: color-mix(in srgb, var(--accent) 55%, #000);
+  }
+
+  /* El enlace al bot SUBIO A LA BASE el 2026-08-04, cuando LF2 estreno el suyo
+     (@MercatoLF2_bot). Aqui no queda nada suyo: el boton se ve igual en las dos
+     y todo lo que cambia —el handle— vive en el index.html de cada repo. */
+
+  /* El dorsal como COLUMNA propia. La FAB lo rellena casi siempre, asi que da
+     una columna util; la FEB no lo trae en LF2 —9 de 209 jugadoras— y alli va
+     metido en una linea de ficha bajo el nombre. Es `filaDePlantilla` del
+     CONTRATO: lo que entrega cada federacion, no una decision nuestra, y por eso
+     la clase la declara el propio mercato.js de este repo. */
+  td.dor { font-variant-numeric: tabular-nums; font-weight: 600; width: 1%; color: var(--muted); }
+
+
+/* =================================================================
+   2. Contra el orden de carga
+   ================================================================= */
+
+  /* base.css declara `svg[data-trazo] { fill: none }` al FINAL de la hoja, para
+     todos los iconos dibujados a trazo. Cualquier `X svg { fill: currentColor }`
+     que se escriba AQUI y empate con ella en especificidad (0,1,1) ganaria,
+     porque esta hoja se carga despues: Instagram y la web volverian a salir como
+     manchas negras opacas. Ya se pago una vez.
+     Hoy no queda NINGUNA regla asi en esta hoja. Los tres sitios donde se
+     rellena un SVG —`.fuente`, `.enlaces` y `.aviso .bot svg`— viven ya en la
+     base, este ultimo desde que subio con el bot el 2026-08-04.
+     La excepcion, cuando haga falta, va pegada a su bloque:
+     `.loquesea svg[data-trazo] { fill: none; stroke: currentColor; stroke-width: 2; }` */
